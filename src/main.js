@@ -1,7 +1,7 @@
-var { MyGadget } = require("./MyGadget");
+var { ShortWdSummary } = require("./ShortWdSummary");
 
 // instance
-var gadget = new MyGadget();
+var gadget = new ShortWdSummary();
 
 // hook when object is ready
 mw.hook('userjs.shortWdSummaryExample.loaded').fire(gadget);

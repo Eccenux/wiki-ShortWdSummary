@@ -1,13 +1,24 @@
-@primary-color: #3498db;
-@secondary-color: #e74c3c;
+// @primary-color: #3498db;
+// @secondary-color: #e74c3c;
 
-.shortWdSummary {
-    background-color: @primary-color;
-    color: white;
-
-	.header {
-		background-color: @secondary-color;
-		padding: 10px;
-		text-align: center;
+.short-wd-summary {
+	/* show-hide container */
+	details {
+		margin: 1em 0;
+		border: 1px solid #ccc;
+		padding: 0.5em;
+		background: #f9f9f9;
+	}
+	summary {
+		cursor: pointer;
+	}
+	/* list of props */
+	ul {
+		list-style: disc;
+		padding-left: 1.5em;
+		margin: 0;
+	}
+	li {
+		margin: 0.2em 0;
 	}
 }
