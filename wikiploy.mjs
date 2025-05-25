@@ -14,11 +14,9 @@ import { addConfig, addConfigRelease } from './wikiploy-common.mjs';
 	// push out file(s) to wiki
 	const configs = [];
 	// dev version
-	addConfig(configs, 'en.wikipedia.org');
+	addConfig(configs, 'www.wikidata.org');
 	// release versions
-	addConfigRelease(configs, 'pl.wikipedia.org');
-	addConfigRelease(configs, 'pl.wikisource.org');
-	addConfigRelease(configs, 'en.wikipedia.org');
+	addConfigRelease(configs, 'www.wikidata.org');
 
 	await ployBot.deploy(configs);
 

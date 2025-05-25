@@ -2,7 +2,7 @@
  * Wikiploy gadget example.
  * 
  * History and docs:
- * https://github.com/Eccenux/wikiploy-rollout-example
+ * https://github.com/Eccenux/wiki-shortwdsummary
  * 
  * Deployed using: [[Wikipedia:Wikiploy]]
  */

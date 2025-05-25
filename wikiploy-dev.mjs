@@ -13,7 +13,7 @@ import { addConfig } from './wikiploy-common.mjs';
 
 	// push out file(s) to wiki
 	const configs = [];
-	addConfig(configs, 'en.wikipedia.org');
+	addConfig(configs, 'www.wikidata.org');
 
 	await ployBot.deploy(configs);
 
