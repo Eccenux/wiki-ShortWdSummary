@@ -2,7 +2,7 @@
 // @secondary-color: #e74c3c;
 
 .short-wd-summary {
-	/* show-hide container */
+	// show-hide container
 	details {
 		margin: 1em 0;
 		border: 1px solid #ccc;
@@ -11,14 +11,33 @@
 	}
 	summary {
 		cursor: pointer;
+		a {
+			display: block;
+			filter: grayscale();
+			float: right;
+			padding: .4em .6em;
+			margin-top: -.4em;
+			margin-right: -.6em;
+
+			&:hover {
+				filter: none;
+				text-decoration: none;
+			}
+		}
 	}
-	/* list of props */
+	// list of props
 	ul {
 		list-style: disc;
 		padding-left: 1.5em;
 		margin: 0;
+		margin-top: .5em;
 	}
 	li {
 		margin: 0.2em 0;
 	}
+}
+
+// fix WD GUI
+.wikibase-entityview-main .wikibase-edittoolbar-container {
+	height: min-content;
 }

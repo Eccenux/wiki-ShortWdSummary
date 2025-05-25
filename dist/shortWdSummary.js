@@ -10,12 +10,6 @@
 class ShortWdSummary {
 	constructor() {
 		this.summaryData = [];
-		/**
-		 * If true will rednder all groups of preprties.
-		 * 
-		 * This would include IDs.... probably not that usefull.
-		 */
-		this.renderAllLists = false;
 	}
 	init() {
 		this.renderAllSummaries();
@@ -85,6 +79,9 @@ class ShortWdSummary {
 		}
 		const summary = document.createElement('summary');
 		summary.textContent = `📄 ${headerText}`;
+		if (heading?.id) {
+			summary.insertAdjacentHTML('beforeend', `<a href="#${heading.id}">⬇️</a>`);
+		}
 		details.appendChild(summary);
 
 		// render property items
