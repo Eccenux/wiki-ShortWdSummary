@@ -65,22 +65,33 @@ class ShortWdSummary {
 	/**
 	 * Creates and inserts a collapsible summary before the given list view.
 	 * 
-	 * @param {Element} listView - Target list view element.
+	 * @param {Element} group - Target list view element.
 	 * @param {Array} data - Parsed property data for that list.
 	 */
-	renderSummary(listView, data) {
+	renderSummary(group, data) {
+		// find header of the group
+		let heading = group.previousElementSibling;
+
 		const wrapper = document.createElement('div');
 		wrapper.className = 'short-wd-summary';
+		wrapper.className += ' ' + (heading?.id ? 'g-'+heading.id : 'g-nn');
 
 		const details = document.createElement('details');
+
+		// render summary
+		let headerText = 'Short summary of properties';
+		if (heading?.tagName === 'H2') {
+			headerText = heading.textContent;
+		}
 		const summary = document.createElement('summary');
-		summary.textContent = '📄 Short summary of properties';
+		summary.textContent = `📄 ${headerText}`;
 		details.appendChild(summary);
 
+		// render property items
 		const list = document.createElement('ul');
 		data.forEach((entry) => {
 			const li = document.createElement('li');
-			li.innerHTML = `<strong>${entry.label}:</strong> ${entry.val}`;
+			li.innerHTML = `<strong><a href="#${entry.id}">${entry.label}</a>:</strong> ${entry.val}`;
 			list.appendChild(li);
 		});
 		details.appendChild(list);
@@ -94,21 +105,14 @@ class ShortWdSummary {
 	 */
 	renderAllSummaries() {
 		// this would include IDs.... probably not that usefull
-		if (this.renderAllLists) {
-			const allListViews = document.querySelectorAll('.wikibase-listview');
-			allListViews.forEach((listView) => {
-				const data = this.collectData(listView);
-				if (data.length > 0) {
-					this.renderSummary(listView, data);
-				}
-			});
-		} else {
-			const listView = document.querySelector('.wikibase-listview');
+		const allGroups = document.querySelectorAll('.wikibase-statementgrouplistview');
+		allGroups.forEach((group) => {
+			const listView = group.querySelector('.wikibase-listview');
 			const data = this.collectData(listView);
 			if (data.length > 0) {
-				this.renderSummary(listView, data);
+				this.renderSummary(group, data);
 			}
-		}
+		});
 	}
 }
 

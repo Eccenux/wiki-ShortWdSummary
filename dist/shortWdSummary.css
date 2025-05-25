@@ -1,8 +1,15 @@
+.short-wd-summary {
+  /* show-hide container */
+  /* list of props */
+}
 .short-wd-summary details {
   margin: 1em 0;
   border: 1px solid #ccc;
   padding: 0.5em;
   background: #f9f9f9;
+}
+.short-wd-summary summary {
+  cursor: pointer;
 }
 .short-wd-summary ul {
   list-style: disc;
