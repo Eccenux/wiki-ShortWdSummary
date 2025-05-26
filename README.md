@@ -1,5 +1,8 @@
 📄 **ShortWdSummary**  – adds a compact, collapsible summary of Wikidata properties at the top. It helps you quickly scan key information without scrolling through long property lists.
 
+On WikiData:
+https://www.wikidata.org/wiki/Wikidata:Tools/Enhance_user_interface#ShortWdSummary
+
 ## 🔍 Features:
 
 * Displays property labels and values in a clean short list.

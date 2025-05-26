@@ -3,6 +3,9 @@ let { PropItem } = require("./PropItem");
 /**
  * ShortWdSummary gadget.
  * 
+ * Description and installation:
+ * https://www.wikidata.org/wiki/Wikidata:Tools/Enhance_user_interface#ShortWdSummary
+ * 
  * History and docs:
  * https://github.com/Eccenux/wiki-shortwdsummary
  * 
