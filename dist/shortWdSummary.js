@@ -99,10 +99,14 @@ class ShortWdSummary {
 	collectPropsData(listView) {
 		const propsData = new Map();
 		const propertyGroups = listView.querySelectorAll('[data-property-id]');
-		propertyGroups.forEach((item) => {
-			const propItem = PropItem.parse(item);
-			if (propItem) propsData.set(propItem.id, propItem);
-		});
+		if (propertyGroups)  {
+			propertyGroups.forEach((item) => {
+				const propItem = PropItem.parse(item);
+				if (propItem) propsData.set(propItem.id, propItem);
+			});
+		} else {
+			console.warn('[SwdS]', 'collectPropsData: no props');
+		}
 		return propsData;
 	}
 
@@ -113,6 +117,11 @@ class ShortWdSummary {
 	 * @param {Map<PropItem>} propsData - Parsed property data for that list.
 	 */
 	renderSummary(group, propsData) {
+		if (!group || !propsData || !propsData.size) {
+			console.warn('[SwdS]', 'renderSummary: invalid data', {group, propsData});
+			return;
+		}
+
 		// find header of the group
 		let heading = group.previousElementSibling;
 
@@ -153,7 +162,20 @@ class ShortWdSummary {
 		details.appendChild(list);
 		wrapper.appendChild(details);
 
-		document.querySelector('.wikibase-entitytermsview-heading').append(wrapper);
+		let container = document.querySelector([
+			'.wikibase-entitytermsview-heading',
+			'.wb-lexeme-header',
+			'.short-wd-summary--container',
+		].join());
+		if (container) {
+			container.append(wrapper);
+		} else {
+			console.warn('[SwdS]', 'render: header not found; create backup container ');
+			container = document.createElement('div');
+			container.className = 'short-wd-summary--container';
+			container.append(wrapper);
+			document.querySelector('#mw-content-text,.mw-body-content')?.prepend(container);
+		}
 	}
 
 	/**
@@ -162,36 +184,53 @@ class ShortWdSummary {
 	renderAllSummaries() {
 		// this would include IDs.... probably not that usefull
 		const allGroups = document.querySelectorAll('.wikibase-statementgrouplistview');
+		if (!allGroups) return false;
 		allGroups.forEach((group) => {
 			const listView = group.querySelector('.wikibase-listview');
-			const propsData = this.collectPropsData(listView);
-			if (propsData.size > 0) {
-				this.renderSummary(group, propsData);
+			if (listView) {
+				const propsData = this.collectPropsData(listView);
+				if (propsData.size > 0) {
+					this.renderSummary(group, propsData);
+				}
+			} else {
+				console.warn('[SwdS]', 'renderAllSummaries: listview not found', {group});
 			}
 		});
+		return true;
 	}
 }
 
 module.exports = { ShortWdSummary };
 
 },{"./PropItem":1}],3:[function(require,module,exports){
-var { ShortWdSummary } = require("./ShortWdSummary");
+let { ShortWdSummary } = require("./ShortWdSummary");
 
 // instance
-var gadget = new ShortWdSummary();
+let gadget = new ShortWdSummary();
 
 // hook when object is ready
 mw.hook('userjs.shortWdSummaryExample.loaded').fire(gadget);
 
-$(function(){
-	// load Mediwiki core dependency
-	// (in this case util is loaded to be able to use `mw.util.addPortletLink`)
-	mw.loader.using(["mediawiki.util"]).then( function() {
-		gadget.init();
+let doInit = function(){
+	// Note! mw.loader makes debugging harder.
+	// Add the to loader instead:
+	// https://www.wikidata.org/wiki/User:Nux/shortWdSummary-loader.js
+	// mw.loader.using(["mediawiki.util"]).then( function() {});
 
-		// hook when initial elements are ready 
-		mw.hook('userjs.shortWdSummaryExample.ready').fire(gadget);
-	});
-});
+	// init
+	gadget.init();
+
+	// hook when initial elements are ready 
+	mw.hook('userjs.shortWdSummaryExample.ready').fire(gadget);
+};
+
+// Plain JS on-ready
+if (document.readyState === "loading") {
+	// Loading hasn't finished yet
+	document.addEventListener("DOMContentLoaded", doInit);
+} else {
+	// `DOMContentLoaded` has already fired
+	doInit();
+}
 
 },{"./ShortWdSummary":2}]},{},[3]);

@@ -6,7 +6,7 @@ module.exports = {
 		"mocha": true,
 	},
 	"globals": {
-		"$": true,
+		"$": false,
 		"mw": true,
 	},
 	"ignorePatterns": [
