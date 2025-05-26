@@ -4,10 +4,10 @@
 class PropItem {
 	/**
 	 * @param {string} id - The Wikidata Property ID (e.g. P123).
-	 * @param {string} label - The human-readable label.
+	 * @param {string} label - The human-readable label (HTML safe value).
 	 * @param {string} img - Optional image HTML.
 	 * @param {string} imgFile - Optional file name (without namespace).
-	 * @param {string} val - Semicolon-separated string of values.
+	 * @param {string} val - Semicolon-separated string of values (might be HTML).
 	 */
 	constructor(id, label, img, imgFile, val) {
 		this.id = id;
@@ -37,14 +37,21 @@ class PropItem {
 				// text
 				let captionEl = valEl.querySelector('.commons-media-caption');
 				let text = captionEl.querySelector('a') ? captionEl.querySelector('a').textContent : captionEl.textContent;
-				values.push(text.trim());
+				values.push(mw.html.escape(text.trim()));
 				// image
 				if (!img.length) {
 					img = valEl.querySelector('img').outerHTML;
 					imgFile = captionEl.querySelector('a')?.textContent;
 				}
+			} else if (valEl.querySelector('.wikibase-kartographer-caption')) {
+				values.push(valEl.querySelector('.wikibase-kartographer-caption').innerHTML.trim());
+			} else if (
+				valEl.querySelector('.wb-calendar-name') // date
+				|| valEl.querySelector('.wb-external-id') // link to external ID
+			) {
+				values.push(valEl.innerHTML.trim());
 			} else {
-				values.push(valEl.textContent.trim());
+				values.push(mw.html.escape(valEl.textContent.trim()));
 			}
 		}
 
