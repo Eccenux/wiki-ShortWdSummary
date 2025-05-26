@@ -1,3 +1,5 @@
+let { PropItem } = require("./PropItem");
+
 /**
  * ShortWdSummary gadget.
  * 
@@ -8,60 +10,35 @@
  */
 class ShortWdSummary {
 	constructor() {
-		this.summaryData = [];
 	}
+
 	init() {
 		this.renderAllSummaries();
-	}
-
-	/**
-	 * Parses a single statement group element to extract its property label and values.
-	 * 
-	 * @param {Element} item - DOM element with data-property-id attribute.
-	 * @returns {{ id: string, label: string, val: string }} Parsed summary object.
-	 */
-	parsePropertyGroup(item) {
-		const labelEl = item.querySelector('.wikibase-statementgroupview-property-label');
-		if (!labelEl) return null;
-
-		const label = labelEl.textContent.trim();
-		const values = [];
-
-		item.querySelectorAll('.wikibase-statementview-mainsnak .wikibase-snakview-value')
-			.forEach((valEl) => {
-				values.push(valEl.textContent.trim());
-			});
-
-		return {
-			id: item.id,
-			label: label,
-			val: values.join('; ')
-		};
 	}
 
 	/**
 	 * Collects summary data from a given list view.
 	 * 
 	 * @param {Element} listView - DOM element containing property groups.
-	 * @returns {Array} Array of parsed property data.
+	 * @returns {Map} P123 => Array of parsed property data.
 	 */
-	collectData(listView) {
-		const data = [];
+	collectPropsData(listView) {
+		const propsData = new Map();
 		const propertyGroups = listView.querySelectorAll('[data-property-id]');
 		propertyGroups.forEach((item) => {
-			const parsed = this.parsePropertyGroup(item);
-			if (parsed) data.push(parsed);
+			const propItem = PropItem.parse(item);
+			if (propItem) propsData.set(propItem.id, propItem);
 		});
-		return data;
+		return propsData;
 	}
 
 	/**
 	 * Creates and inserts a collapsible summary before the given list view.
 	 * 
 	 * @param {Element} group - Target list view element.
-	 * @param {Array} data - Parsed property data for that list.
+	 * @param {Map<PropItem>} propsData - Parsed property data for that list.
 	 */
-	renderSummary(group, data) {
+	renderSummary(group, propsData) {
 		// find header of the group
 		let heading = group.previousElementSibling;
 
@@ -86,9 +63,15 @@ class ShortWdSummary {
 		}
 		details.appendChild(summary);
 
+		// image?
+		if (propsData.has('P18')) {
+			let imgProp = propsData.get('P18');
+			details.insertAdjacentHTML('afterbegin', `<div class="sum-img" title="File:${mw.html.escape(imgProp.imgFile)}">${imgProp.img}</div>`);
+		}
+
 		// render property items
 		const list = document.createElement('ul');
-		data.forEach((entry) => {
+		propsData.forEach((entry) => {
 			const li = document.createElement('li');
 			li.innerHTML = `<strong><a href="#${entry.id}">${entry.label}</a>:</strong> ${entry.val}`;
 			list.appendChild(li);
@@ -107,9 +90,9 @@ class ShortWdSummary {
 		const allGroups = document.querySelectorAll('.wikibase-statementgrouplistview');
 		allGroups.forEach((group) => {
 			const listView = group.querySelector('.wikibase-listview');
-			const data = this.collectData(listView);
-			if (data.length > 0) {
-				this.renderSummary(group, data);
+			const propsData = this.collectPropsData(listView);
+			if (propsData.size > 0) {
+				this.renderSummary(group, propsData);
 			}
 		});
 	}

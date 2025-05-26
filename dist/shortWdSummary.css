@@ -19,6 +19,10 @@
   filter: none;
   text-decoration: none;
 }
+.short-wd-summary .sum-img {
+  float: right;
+  padding: 0 0 0.5em 0.5em;
+}
 .short-wd-summary ul {
   list-style: disc;
   padding-left: 1.5em;

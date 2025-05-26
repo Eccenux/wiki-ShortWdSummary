@@ -1,5 +1,70 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 /**
+ * Parsed property data.
+ */
+class PropItem {
+	/**
+	 * @param {string} id - The Wikidata Property ID (e.g. P123).
+	 * @param {string} label - The human-readable label.
+	 * @param {string} img - Optional image HTML.
+	 * @param {string} imgFile - Optional file name (without namespace).
+	 * @param {string} val - Semicolon-separated string of values.
+	 */
+	constructor(id, label, img, imgFile, val) {
+		this.id = id;
+		this.label = label;
+		this.img = img;
+		this.imgFile = imgFile;
+		this.val = val;
+	}
+
+	/**
+	 * Parses a single property element to extract its data.
+	 * 
+	 * @param {Element} item - DOM element with property id attribute.
+	 * @returns {PropItem|null} Parsed object.
+	 */
+	static parse(item) {
+		let labelEl = item.querySelector('.wikibase-statementgroupview-property-label');
+		if (!labelEl) return null;
+
+		let label = labelEl.textContent.trim();
+		let values = [];
+		let img = '';
+		let imgFile = '';
+
+		for (const valEl of item.querySelectorAll('.wikibase-statementview-mainsnak .wikibase-snakview-value')) {
+			if (valEl.querySelector('.commons-media-caption')) {
+				// text
+				let captionEl = valEl.querySelector('.commons-media-caption');
+				let text = captionEl.querySelector('a') ? captionEl.querySelector('a').textContent : captionEl.textContent;
+				values.push(text.trim());
+				// image
+				if (!img.length) {
+					img = valEl.querySelector('img').outerHTML;
+					imgFile = captionEl.querySelector('a')?.textContent;
+				}
+			} else {
+				values.push(valEl.textContent.trim());
+			}
+		}
+
+		return new PropItem(
+			item.id,
+			label,
+			img,
+			imgFile,
+			values.join('; ')
+		);
+	}
+}
+
+module.exports = { PropItem };
+
+},{}],2:[function(require,module,exports){
+let { PropItem } = require("./PropItem");
+
+/**
  * ShortWdSummary gadget.
  * 
  * History and docs:
@@ -9,60 +74,35 @@
  */
 class ShortWdSummary {
 	constructor() {
-		this.summaryData = [];
 	}
+
 	init() {
 		this.renderAllSummaries();
-	}
-
-	/**
-	 * Parses a single statement group element to extract its property label and values.
-	 * 
-	 * @param {Element} item - DOM element with data-property-id attribute.
-	 * @returns {{ id: string, label: string, val: string }} Parsed summary object.
-	 */
-	parsePropertyGroup(item) {
-		const labelEl = item.querySelector('.wikibase-statementgroupview-property-label');
-		if (!labelEl) return null;
-
-		const label = labelEl.textContent.trim();
-		const values = [];
-
-		item.querySelectorAll('.wikibase-statementview-mainsnak .wikibase-snakview-value')
-			.forEach((valEl) => {
-				values.push(valEl.textContent.trim());
-			});
-
-		return {
-			id: item.id,
-			label: label,
-			val: values.join('; ')
-		};
 	}
 
 	/**
 	 * Collects summary data from a given list view.
 	 * 
 	 * @param {Element} listView - DOM element containing property groups.
-	 * @returns {Array} Array of parsed property data.
+	 * @returns {Map} P123 => Array of parsed property data.
 	 */
-	collectData(listView) {
-		const data = [];
+	collectPropsData(listView) {
+		const propsData = new Map();
 		const propertyGroups = listView.querySelectorAll('[data-property-id]');
 		propertyGroups.forEach((item) => {
-			const parsed = this.parsePropertyGroup(item);
-			if (parsed) data.push(parsed);
+			const propItem = PropItem.parse(item);
+			if (propItem) propsData.set(propItem.id, propItem);
 		});
-		return data;
+		return propsData;
 	}
 
 	/**
 	 * Creates and inserts a collapsible summary before the given list view.
 	 * 
 	 * @param {Element} group - Target list view element.
-	 * @param {Array} data - Parsed property data for that list.
+	 * @param {Map<PropItem>} propsData - Parsed property data for that list.
 	 */
-	renderSummary(group, data) {
+	renderSummary(group, propsData) {
 		// find header of the group
 		let heading = group.previousElementSibling;
 
@@ -87,9 +127,15 @@ class ShortWdSummary {
 		}
 		details.appendChild(summary);
 
+		// image?
+		if (propsData.has('P18')) {
+			let imgProp = propsData.get('P18');
+			details.insertAdjacentHTML('afterbegin', `<div class="sum-img" title="File:${mw.html.escape(imgProp.imgFile)}">${imgProp.img}</div>`);
+		}
+
 		// render property items
 		const list = document.createElement('ul');
-		data.forEach((entry) => {
+		propsData.forEach((entry) => {
 			const li = document.createElement('li');
 			li.innerHTML = `<strong><a href="#${entry.id}">${entry.label}</a>:</strong> ${entry.val}`;
 			list.appendChild(li);
@@ -108,9 +154,9 @@ class ShortWdSummary {
 		const allGroups = document.querySelectorAll('.wikibase-statementgrouplistview');
 		allGroups.forEach((group) => {
 			const listView = group.querySelector('.wikibase-listview');
-			const data = this.collectData(listView);
-			if (data.length > 0) {
-				this.renderSummary(group, data);
+			const propsData = this.collectPropsData(listView);
+			if (propsData.size > 0) {
+				this.renderSummary(group, propsData);
 			}
 		});
 	}
@@ -118,7 +164,7 @@ class ShortWdSummary {
 
 module.exports = { ShortWdSummary };
 
-},{}],2:[function(require,module,exports){
+},{"./PropItem":1}],3:[function(require,module,exports){
 var { ShortWdSummary } = require("./ShortWdSummary");
 
 // instance
@@ -138,4 +184,4 @@ $(function(){
 	});
 });
 
-},{"./ShortWdSummary":1}]},{},[2]);
+},{"./ShortWdSummary":2}]},{},[3]);
