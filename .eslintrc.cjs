@@ -2,7 +2,7 @@ module.exports = {
 	"env": {
 		"node": true,
 		"browser": true,
-		"es2017": true,	// note that even using async/await might not be supported in MW: https://phabricator.wikimedia.org/T277675
+		"es2020": true,	// note that even using async/await (ES2017) might not be supported in MW minifier: https://phabricator.wikimedia.org/T277675
 		"mocha": true,
 	},
 	"globals": {

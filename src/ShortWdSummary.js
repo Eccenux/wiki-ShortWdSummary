@@ -70,6 +70,9 @@ class ShortWdSummary {
 		wrapper.className += ' ' + (heading?.id ? 'g-'+heading.id : 'g-nn');
 
 		const details = document.createElement('details');
+		if (heading?.id == 'claims') {
+			details.setAttribute('open', '');
+		}
 
 		// render summary
 		let headerText = 'Short summary of properties';
