@@ -1,7 +1,14 @@
 📄 **ShortWdSummary**  – adds a compact, collapsible summary of Wikidata properties at the top. It helps you quickly scan key information without scrolling through long property lists.
 
-On WikiData:
+Info on WikiData:
 https://www.wikidata.org/wiki/Wikidata:Tools/Enhance_user_interface#ShortWdSummary
+
+## Installation
+
+Just add the following line into [your common.js on WikiData](https://www.wikidata.org/wiki/Special:MyPage/common.js):
+```js
+mw.loader.load( '//www.wikidata.org/w/index.php?title=User:Nux/shortWdSummary-loader.js&action=raw&ctype=text/javascript' ); // [[User:Nux/shortWdSummary-loader.js]]
+```
 
 ## 🔍 Features:
 
