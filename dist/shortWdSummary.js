@@ -40,7 +40,7 @@ class PropItem {
 				let text = captionEl.querySelector('a') ? captionEl.querySelector('a').textContent : captionEl.textContent;
 				values.push(mw.html.escape(text.trim()));
 				// image
-				if (!img.length) {
+				if (!img.length && valEl.querySelector('img')) {
 					img = valEl.querySelector('img').outerHTML;
 					imgFile = captionEl.querySelector('a')?.textContent;
 				}
