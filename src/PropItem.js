@@ -46,8 +46,9 @@ class PropItem {
 			} else if (valEl.querySelector('.wikibase-kartographer-caption')) {
 				values.push(valEl.querySelector('.wikibase-kartographer-caption').innerHTML.trim());
 			} else if (
-				valEl.querySelector('.wb-calendar-name') // date
+				valEl.querySelector('.wb-calendar-name') // date, e.g. https://www.wikidata.org/wiki/Q20#P571
 			) {
+				// full HTML
 				values.push(valEl.innerHTML.trim());
 			} else {
 				let link;
