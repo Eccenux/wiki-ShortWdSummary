@@ -48,11 +48,24 @@ class PropItem {
 				values.push(valEl.querySelector('.wikibase-kartographer-caption').innerHTML.trim());
 			} else if (
 				valEl.querySelector('.wb-calendar-name') // date
-				|| valEl.querySelector('.wb-external-id') // link to external ID
 			) {
 				values.push(valEl.innerHTML.trim());
 			} else {
-				values.push(mw.html.escape(valEl.textContent.trim()));
+				let link;
+				// check for external links
+				link = valEl.querySelector('a.wb-external-id,a.external.free');
+				if (link) {
+					link.setAttribute('target', '_blank');
+					link.setAttribute('rel', 'noopener');
+				} else {
+					link = valEl.querySelector('a[href^="/wiki/"]'); // internal links e.g. to Q
+				}
+				// use link or pure text
+				if (link) {
+					values.push(link.outerHTML.trim());
+				} else {
+					values.push(mw.html.escape(valEl.textContent.trim()));
+				}
 			}
 		}
 
